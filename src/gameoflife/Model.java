@@ -1,6 +1,5 @@
 package gameoflife;
 
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
