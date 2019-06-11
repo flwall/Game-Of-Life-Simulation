@@ -6,13 +6,16 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
     private boolean[][] field;
 
-    public GameOfLifeCalculation() {
+    public GameOfLifeCalculation(boolean[][] f) {
 
-        int cols = (int) (Math.random() * (100 - 10 + 1)) + 10;
-        int rows = (int) (Math.random() * (100 - 10 + 1)) + 10;
+        // int cols = (int) (Math.random() * (100 - 10 + 1)) + 10;
+        // int rows = (int) (Math.random() * (100 - 10 + 1)) + 10;
 
-        field = new boolean[rows][cols];
+        this.field=f;
+        
+    }
 
+    public void generateRandomField() {
         for (int j = 0; j < field.length; j++) {
             for (int k = 0; k < field[j].length; k++) {
 
@@ -26,7 +29,6 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
             }
         }
-
     }
 
     @Override
@@ -34,34 +36,10 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
         while (!Thread.currentThread().isInterrupted()) {
 
-            for (int j = 1; j < field.length - 1; j++) {
-                for (int k = 1; k < field[j].length - 1; k++) {
-
-                    int aliveNeighbours = 0;
-                    for (int i = -1; i <= 1; i++) {
-                        for (int m = -1; m <= 1; m++) {
-                            if (field[j + i][k + m]) {
-                                aliveNeighbours++;
-                            }
-                        }
-                    }
-                    if (field[j][k]) {
-                        aliveNeighbours--;
-                    }
-
-                    if (field[j][k] && aliveNeighbours < 2) {
-                        field[j][k] = false;
-                    } else if (field[j][k] && aliveNeighbours > 3) {
-                        field[j][k] = false;
-                    } else if (!field[j][k] && aliveNeighbours == 3) {
-                        field[j][k] = true;
-                    }
-
-                }
-            }
+            nextGen();
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
 
             } catch (InterruptedException e) {
                 break;
@@ -69,8 +47,43 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
             setChanged();
             notifyObservers(field);
-
         }
     }
+
+    public void nextGen() {
+        for (int j = 1; j < field.length - 1; j++) {
+            for (int k = 1; k < field[j].length - 1; k++) {
+
+                int aliveNeighbours = 0;
+                for (int i = -1; i <= 1; i++) {
+                    for (int m = -1; m <= 1; m++) {
+                        if (field[j + i][k + m]) {
+                            aliveNeighbours++;
+                        }
+                    }
+                }
+                if (field[j][k]) {
+                    aliveNeighbours--;
+                }
+
+                if (field[j][k] && aliveNeighbours < 2) {
+                    field[j][k] = false;
+                } else if (field[j][k] && aliveNeighbours > 3) {
+                    field[j][k] = false;
+                } else if (!field[j][k] && aliveNeighbours == 3) {
+                    field[j][k] = true;
+                }
+
+            }
+        }
+
+       
+    }
+
+    public void changeStateOfCell(int i, int j) {
+        field[i][j] = !field[i][j];
+    }
+
+
 
 }

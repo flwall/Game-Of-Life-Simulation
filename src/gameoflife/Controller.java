@@ -8,9 +8,9 @@ public class Controller {
     private Model m;
     
     public Controller(){
-        
+        this.m = new Model();
         this.v=new View(this);
-        this.m=new Model();
+        
         m.addObserver(v);
     }
 

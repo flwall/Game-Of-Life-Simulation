@@ -11,6 +11,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
 
         primaryStage.setScene(controller.getView().getScene(350, 350));
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 
