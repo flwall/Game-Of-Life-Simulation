@@ -7,13 +7,14 @@ public class Model extends Observable implements Observer {
 
     private Thread gameThread;
 
+    private GameOfLifeCalculation calc;
+
     public void startGame() {
         if (gameThread != null) {
-            gameThread.interrupt();
-            gameThread = null;
+            return;
         }
 
-        GameOfLifeCalculation calc = new GameOfLifeCalculation();
+        calc = new GameOfLifeCalculation();
         calc.addObserver(this);
 
         gameThread = new Thread(calc, "Game Of Life Calculator");
@@ -30,7 +31,7 @@ public class Model extends Observable implements Observer {
         }
 
         gameThread.interrupt();
-        gameThread = null;
+        gameThread=null;
 
     }
 

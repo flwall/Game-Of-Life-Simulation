@@ -32,15 +32,13 @@ public class View implements Observer {
         start.setOnAction((e) -> {
             controller.getModel().startGame();
 
-        }
-        );
+        });
 
         stop.setOnAction((e) -> {
 
             controller.getModel().stopGame();
 
-        }
-        );
+        });
 
         masterpane.add(start, 0, 0);
         masterpane.add(stop, 1, 0);
@@ -73,7 +71,7 @@ public class View implements Observer {
 
     }
 
-    public Scene getScene(int width, int heigth) {
-        return new Scene(masterpane, width, heigth);
+    public Scene getScene(int width, int height) {
+        return new Scene(masterpane, width, height);
     }
 }

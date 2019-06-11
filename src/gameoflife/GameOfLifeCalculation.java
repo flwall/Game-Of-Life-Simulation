@@ -7,6 +7,7 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
     private boolean[][] field;
 
     public GameOfLifeCalculation() {
+
         int cols = (int) (Math.random() * (100 - 10 + 1)) + 10;
         int rows = (int) (Math.random() * (100 - 10 + 1)) + 10;
 
@@ -58,17 +59,18 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
                 }
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
 
+            try {
+                Thread.sleep(100);
+
+            } catch (InterruptedException e) {
+                break;
             }
 
             setChanged();
             notifyObservers(field);
 
         }
-
     }
 
 }
