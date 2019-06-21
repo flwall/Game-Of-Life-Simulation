@@ -2,26 +2,29 @@ package gameoflife;
 
 import java.util.Observable;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
+
 public class GameOfLifeCalculation extends Observable implements Runnable {
 
     private boolean[][] field;
+    Thread t = null;
 
     public GameOfLifeCalculation(boolean[][] f) {
 
         // int cols = (int) (Math.random() * (100 - 10 + 1)) + 10;
         // int rows = (int) (Math.random() * (100 - 10 + 1)) + 10;
 
-        this.field=f;
-        
+        this.field = f;
+
     }
 
     public void generateRandomField() {
         for (int j = 0; j < field.length; j++) {
             for (int k = 0; k < field[j].length; k++) {
 
-                int isLiving = (int) ((Math.random() * 2));
+                double isLiving = ((Math.random() * 2));
 
-                if (isLiving == 0) {
+                if (isLiving > 0.25d) {
                     field[j][k] = false;
                 } else {
                     field[j][k] = true;
@@ -29,6 +32,8 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
             }
         }
+        setChanged();
+        notifyObservers(field);
     }
 
     @Override
@@ -38,16 +43,17 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
             nextGen();
 
-            try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException e) {
-                break;
-            }
+            /*
+             * try { Thread.sleep(100);
+             * 
+             * } catch (InterruptedException e) { break; }
+             */
 
             setChanged();
             notifyObservers(field);
-        }
+
+             }
+        
     }
 
     public void nextGen() {
@@ -77,13 +83,10 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
             }
         }
 
-       
     }
 
     public void changeStateOfCell(int i, int j) {
         field[i][j] = !field[i][j];
     }
-
-
 
 }

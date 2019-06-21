@@ -12,6 +12,7 @@ public class Main extends Application {
 
         primaryStage.setScene(controller.getView().getScene(350, 350));
         primaryStage.setMaximized(true);
+        primaryStage.setTitle("Game Of Life Simulation");
         primaryStage.show();
     }
 

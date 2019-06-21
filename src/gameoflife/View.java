@@ -1,9 +1,12 @@
 package gameoflife;
 
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.CountDownLatch;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -11,6 +14,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -66,8 +70,22 @@ public class View implements Observer, EventHandler<ActionEvent> {
                 controller.getModel().nextGen();
             }
         });
+
+        ArrayList<Entity> items = new ArrayList<>();
+
+        ComboBox dropdown = new ComboBox<>(FXCollections.observableArrayList(items));
+
         HBox hbox = new HBox();
-        hbox.getChildren().addAll(start, next);
+        Button randomField = new Button("Generate Random Field");
+        randomField.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                    controller.getModel().generateRandomField();
+            }
+        });
+
+        hbox.getChildren().addAll(start, next,randomField);
 
         gamePane = new GridPane();
         gamePane.setCache(true);
@@ -121,10 +139,10 @@ public class View implements Observer, EventHandler<ActionEvent> {
 
     @Override
     public void update(Observable o, Object arg) {
-
-        Platform.runLater(() -> {
+        runAndWait(()->{
             boolean[][] field = (boolean[][]) arg;
 
+            
             GridPane p = gamePane;
             p.setGridLinesVisible(true);
 
@@ -150,7 +168,6 @@ public class View implements Observer, EventHandler<ActionEvent> {
                             } else {
                                 rec.setFill(Color.WHITE);
                             }
-
                         }
                     });
 
@@ -158,9 +175,43 @@ public class View implements Observer, EventHandler<ActionEvent> {
                 }
             }
             // masterpane.add(p, 1, 1);
+            
+        });
+        
+    }
+
+
+
+    public  void runAndWait(Runnable action) {
+        if (action == null)
+            throw new NullPointerException("action");
+
+        // run synchronously on JavaFX thread
+        if (Platform.isFxApplicationThread()) {
+            action.run();
+            return;
+        }
+
+        // queue on JavaFX thread and wait for completion
+        final CountDownLatch doneLatch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            try {
+                action.run();
+            } finally {
+                doneLatch.countDown();
+            }
         });
 
+        try {
+            doneLatch.await();
+        } catch (InterruptedException e) {
+            controller.getModel().interrupt();
+        }
     }
+
+
+
+
 
     public Scene getScene(int width, int height) {
         return new Scene(masterpane, width, height);
