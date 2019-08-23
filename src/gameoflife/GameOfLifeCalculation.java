@@ -1,13 +1,13 @@
 package gameoflife;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Observable;
-
-import com.sun.org.apache.xpath.internal.SourceTree;
 
 public class GameOfLifeCalculation extends Observable implements Runnable {
 
     private boolean[][] field;
-    Thread t = null;
+    List<Cell> changedCells = new LinkedList<>();
 
     public GameOfLifeCalculation(boolean[][] f) {
 
@@ -25,15 +25,14 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
                 double isLiving = ((Math.random() * 2));
 
                 if (isLiving > 0.25d) {
-                    field[j][k] = false;
+                    changeStateOfCell(j, k, false);
                 } else {
-                    field[j][k] = true;
+                    changeStateOfCell(j, k, true);
                 }
 
             }
         }
-        setChanged();
-        notifyObservers(field);
+        update();
     }
 
     @Override
@@ -49,11 +48,10 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
              * } catch (InterruptedException e) { break; }
              */
 
-            setChanged();
-            notifyObservers(field);
+            update();
 
-             }
-        
+        }
+
     }
 
     public void nextGen() {
@@ -73,11 +71,13 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
                 }
 
                 if (field[j][k] && aliveNeighbours < 2) {
-                    field[j][k] = false;
+                    changeStateOfCell(j, k, false);
                 } else if (field[j][k] && aliveNeighbours > 3) {
-                    field[j][k] = false;
+                    changeStateOfCell(j, k, false);
+
                 } else if (!field[j][k] && aliveNeighbours == 3) {
-                    field[j][k] = true;
+                    changeStateOfCell(j, k, true);
+
                 }
 
             }
@@ -85,8 +85,35 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
     }
 
+    private void changeStateOfCell(int i, int j, boolean isLiving) {
+        field[i][j] = isLiving;
+
+        LiveState state = null;
+        if (field[i][j]) {
+            state = LiveState.LIVING;
+        } else
+            state = LiveState.DEAD;
+
+        Cell c = new Cell(i, j, state);
+        if (changedCells.contains(c)) {
+            changedCells.get(changedCells.indexOf(c)).setState(state);
+        } else {
+            changedCells.add(c);
+        }
+
+    }
+
     public void changeStateOfCell(int i, int j) {
         field[i][j] = !field[i][j];
+        changeStateOfCell(i, j, field[i][j]);
+
+    }
+
+    public void update() {
+        setChanged();
+        notifyObservers(new LinkedList<>(changedCells));
+        changedCells.clear();
+
     }
 
 }

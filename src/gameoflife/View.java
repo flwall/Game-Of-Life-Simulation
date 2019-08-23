@@ -1,6 +1,8 @@
 package gameoflife;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.CountDownLatch;
@@ -30,7 +32,7 @@ public class View implements Observer, EventHandler<ActionEvent> {
     private BorderPane masterpane;
     private GridPane gamePane;
 
-    private Button start, stop;
+    private Button start;
 
     public View(Controller c) {
         this.controller = c;
@@ -43,7 +45,6 @@ public class View implements Observer, EventHandler<ActionEvent> {
         masterpane = new BorderPane();
 
         start = new Button("Start");
-        stop = new Button("Stop");
 
         Slider timeSlider = new Slider(0, 1, 0.5);
 
@@ -55,14 +56,8 @@ public class View implements Observer, EventHandler<ActionEvent> {
         start.setId("start");
         start.setOnAction(this);
 
-        /*
-         * stop.setOnAction((e) -> {
-         * 
-         * controller.getModel().stopGame();
-         * 
-         * });
-         */
         Button next = new Button("Next");
+
         next.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -73,7 +68,7 @@ public class View implements Observer, EventHandler<ActionEvent> {
 
         ArrayList<Entity> items = new ArrayList<>();
 
-        ComboBox dropdown = new ComboBox<>(FXCollections.observableArrayList(items));
+        ComboBox<Entity> dropdown = new ComboBox<>(FXCollections.observableArrayList(items));
 
         HBox hbox = new HBox();
         Button randomField = new Button("Generate Random Field");
@@ -81,18 +76,18 @@ public class View implements Observer, EventHandler<ActionEvent> {
 
             @Override
             public void handle(ActionEvent event) {
-                    controller.getModel().generateRandomField();
+                controller.getModel().generateRandomField();
             }
         });
 
-        hbox.getChildren().addAll(start, next,randomField);
+        hbox.getChildren().addAll(start, next, randomField);
 
         gamePane = new GridPane();
-        gamePane.setCache(true);
+        // gamePane.setCache(true);
         hbox.setPadding(new Insets(10, 10, 10, 10));
 
         VBox box = new VBox();
-        box.getChildren().addAll(gamePane, slidersBox);
+        box.getChildren().addAll(gamePane);
         masterpane.setCenter(box);
         masterpane.setTop(hbox);
         masterpane.setPadding(new Insets(10, 10, 10, 10));
@@ -118,15 +113,19 @@ public class View implements Observer, EventHandler<ActionEvent> {
 
                     @Override
                     public void handle(Event event) {
+                        Platform.runLater(new Runnable() {
 
-                        controller.getModel().changeStateOfCell(tmp, tmp2);
+                            @Override
+                            public void run() {
+                                controller.getModel().changeStateOfCell(tmp, tmp2);
 
-                        Color red = Color.RED;
-                        if (rec.getFill().equals(Color.RED)) {
-                            rec.setFill(Color.WHITE);
-                        } else {
-                            rec.setFill(Color.RED);
-                        }
+                                if (rec.getFill().equals(Color.RED)) {
+                                    rec.setFill(Color.WHITE);
+                                } else {
+                                    rec.setFill(Color.RED);
+                                }
+                            }
+                        });
 
                     }
                 });
@@ -139,50 +138,50 @@ public class View implements Observer, EventHandler<ActionEvent> {
 
     @Override
     public void update(Observable o, Object arg) {
-        runAndWait(()->{
-            boolean[][] field = (boolean[][]) arg;
 
-            
-            GridPane p = gamePane;
-            p.setGridLinesVisible(true);
+        runAndWait(new Runnable() {
 
-            for (int i = 0; i < field.length; i++) {
-                for (int j = 0; j < field[i].length; j++) {
-
-                    Rectangle rec = new Rectangle(10, 10);
-                    if (field[i][j]) {
-                        rec.setFill(Color.RED);
-                    } else {
-                        rec.setFill(Color.WHITE);
-                    }
-                    final int tmp = i, tmp2 = j;
-                    rec.setOnMouseClicked(new EventHandler<Event>() {
-
-                        @Override
-                        public void handle(Event event) {
-
-                            controller.getModel().changeStateOfCell(tmp, tmp2);
-
-                            if (!field[tmp][tmp2]) {
-                                rec.setFill(Color.RED);
-                            } else {
-                                rec.setFill(Color.WHITE);
-                            }
-                        }
-                    });
-
-                    p.add(rec, i, j);
-                }
+            @Override
+            public void run() {
+                toRun(arg);
             }
-            // masterpane.add(p, 1, 1);
-            
         });
-        
+
+        /*
+         * this.runAndWait(new Runnable() {
+         * 
+         * @Override public void run() { toRun(arg); } });
+         */
+
     }
 
+    private void toRun(Object arg) {
+        List<Cell> cells = null;
+        if (arg instanceof LinkedList) {
+            cells = (LinkedList<Cell>) arg;
+        } else
+            return;
 
+        GridPane p = gamePane;
+        p.setGridLinesVisible(true);
+        for (Cell c : cells) {
 
-    public  void runAndWait(Runnable action) {
+            Node node = p.getChildren().get(controller.getModel().getRows() * c.getRow() + c.getCol());
+            if (!(node instanceof Rectangle)) {
+                continue;
+            }
+            Rectangle rec = (Rectangle) node;
+            if (c.getState() == LiveState.LIVING) {
+                rec.setFill(Color.RED);
+            } else {
+                rec.setFill(Color.WHITE);
+            }
+        }
+
+    }
+
+    // unneccessary
+    public void runAndWait(Runnable action) {
         if (action == null)
             throw new NullPointerException("action");
 
@@ -208,10 +207,6 @@ public class View implements Observer, EventHandler<ActionEvent> {
             controller.getModel().interrupt();
         }
     }
-
-
-
-
 
     public Scene getScene(int width, int height) {
         return new Scene(masterpane, width, height);

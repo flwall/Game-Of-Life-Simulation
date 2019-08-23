@@ -24,7 +24,7 @@ public class Model extends Observable implements Observer {
         this.cols = cols;
     }
 
-    private boolean[][] field;
+  
 
     private GameOfLifeCalculation calc;
 
@@ -32,7 +32,7 @@ public class Model extends Observable implements Observer {
 
         this.rows=rows;
         this.cols=cols;
-        field = new boolean[cols][rows];
+        boolean[][] field = new boolean[cols][rows];
 
         calc = new GameOfLifeCalculation(field);
         calc.addObserver(this);
@@ -46,8 +46,7 @@ public class Model extends Observable implements Observer {
         }
         calc.nextGen();
 
-        setChanged();
-        notifyObservers(field);
+        calc.update();
 
     }
 
@@ -87,12 +86,11 @@ public class Model extends Observable implements Observer {
     public void generateRandomField(){
         if(gameThread!=null) gameThread.interrupt();
 
-        field=new boolean [cols][rows];
+        boolean[][] field=new boolean [cols][rows];
         calc=new GameOfLifeCalculation(field);
         calc.addObserver(this);
         calc.generateRandomField();
-
-
+        
     }
 
     @Override
@@ -105,6 +103,7 @@ public class Model extends Observable implements Observer {
 
     public void changeStateOfCell(int i, int j) {
         calc.changeStateOfCell(i, j);
+
 
     }
 
