@@ -1,5 +1,6 @@
 package gameoflife;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -55,27 +56,29 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
     }
 
     public void nextGen() {
-        for (int j = 1; j < field.length - 1; j++) {
-            for (int k = 1; k < field[j].length - 1; k++) {
+        boolean[][] tmp = copyArray(field);
+
+        for (int j = 1; j < tmp.length - 1; j++) {
+            for (int k = 1; k < tmp[j].length - 1; k++) {
 
                 int aliveNeighbours = 0;
                 for (int i = -1; i <= 1; i++) {
                     for (int m = -1; m <= 1; m++) {
-                        if (field[j + i][k + m]) {
+                        if (tmp[j + i][k + m]) {
                             aliveNeighbours++;
                         }
                     }
                 }
-                if (field[j][k]) {
+                if (tmp[j][k]) {
                     aliveNeighbours--;
                 }
 
-                if (field[j][k] && aliveNeighbours < 2) {
+                if (tmp[j][k] && aliveNeighbours < 2) {
                     changeStateOfCell(j, k, false);
-                } else if (field[j][k] && aliveNeighbours > 3) {
+                } else if (tmp[j][k] && aliveNeighbours > 3) {
                     changeStateOfCell(j, k, false);
 
-                } else if (!field[j][k] && aliveNeighbours == 3) {
+                } else if (!tmp[j][k] && aliveNeighbours == 3) {
                     changeStateOfCell(j, k, true);
 
                 }
@@ -85,11 +88,22 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
     }
 
+    private boolean[][] copyArray(boolean[][] field2) {
+        boolean[][] tmp = new boolean[field2.length][field2[0].length];
+
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[i].length; j++) {
+                tmp[i][j] = field[i][j];
+            }
+        }
+        return tmp;
+    }
+
     private void changeStateOfCell(int i, int j, boolean isLiving) {
-        field[i][j] = isLiving;
+        this.field[i][j] = isLiving;
 
         LiveState state = null;
-        if (field[i][j]) {
+        if (isLiving) {
             state = LiveState.LIVING;
         } else
             state = LiveState.DEAD;

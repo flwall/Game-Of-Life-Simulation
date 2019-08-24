@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -13,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -100,7 +103,7 @@ public class View implements Observer, EventHandler<ActionEvent> {
         int cols = 73, rows = 47;
 
         controller.getModel().initField(rows, cols);
-
+        
         gamePane.setGridLinesVisible(true);
         for (int i = 0; i < cols; i++) {
             for (int j = 0; j < rows; j++) {
@@ -118,12 +121,6 @@ public class View implements Observer, EventHandler<ActionEvent> {
                             @Override
                             public void run() {
                                 controller.getModel().changeStateOfCell(tmp, tmp2);
-
-                                if (rec.getFill().equals(Color.RED)) {
-                                    rec.setFill(Color.WHITE);
-                                } else {
-                                    rec.setFill(Color.RED);
-                                }
                             }
                         });
 
@@ -166,10 +163,12 @@ public class View implements Observer, EventHandler<ActionEvent> {
         p.setGridLinesVisible(true);
         for (Cell c : cells) {
 
-            Node node = p.getChildren().get(controller.getModel().getRows() * c.getRow() + c.getCol());
+            Node node = p.getChildren().get(controller.getModel().getRows() * c.getRow()+1 + c.getCol());
             if (!(node instanceof Rectangle)) {
+                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Node is not a Rectangle");
                 continue;
             }
+
             Rectangle rec = (Rectangle) node;
             if (c.getState() == LiveState.LIVING) {
                 rec.setFill(Color.RED);

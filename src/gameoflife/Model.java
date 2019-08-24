@@ -103,7 +103,7 @@ public class Model extends Observable implements Observer {
 
     public void changeStateOfCell(int i, int j) {
         calc.changeStateOfCell(i, j);
-
+        calc.update();
 
     }
 
