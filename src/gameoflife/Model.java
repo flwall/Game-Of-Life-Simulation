@@ -113,5 +113,11 @@ public class Model extends Observable implements Observer {
         
 	}
 
+	public void clearField() {
+        calc.clearField();
+
+
+	}
+
 
 }

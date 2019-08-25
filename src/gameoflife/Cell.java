@@ -1,6 +1,5 @@
 package gameoflife;
 
-import java.awt.Color;
 
 enum LiveState {
     LIVING, DEAD

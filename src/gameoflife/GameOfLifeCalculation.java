@@ -1,6 +1,6 @@
 package gameoflife;
 
-import java.util.Arrays;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -125,8 +125,22 @@ public class GameOfLifeCalculation extends Observable implements Runnable {
 
     public void update() {
         setChanged();
-        notifyObservers(new LinkedList<>(changedCells));
+        notifyObservers(new LinkedList<>(changedCells));        //problematic
         changedCells.clear();
+
+    }
+
+    public void clearField() {
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[i].length; j++) {
+                if (field[i][j]) {
+                    changeStateOfCell(i, j, false);
+                }
+
+            }
+        }
+
+        update();
 
     }
 

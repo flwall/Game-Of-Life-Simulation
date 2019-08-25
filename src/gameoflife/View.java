@@ -1,6 +1,5 @@
 package gameoflife;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -10,16 +9,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -69,9 +65,7 @@ public class View implements Observer, EventHandler<ActionEvent> {
             }
         });
 
-        ArrayList<Entity> items = new ArrayList<>();
-
-        ComboBox<Entity> dropdown = new ComboBox<>(FXCollections.observableArrayList(items));
+        
 
         HBox hbox = new HBox();
         Button randomField = new Button("Generate Random Field");
@@ -83,7 +77,13 @@ public class View implements Observer, EventHandler<ActionEvent> {
             }
         });
 
-        hbox.getChildren().addAll(start, next, randomField);
+        Button clear=new Button("Clear");
+        clear.setOnAction(e->{
+            controller.getModel().clearField();
+
+
+        }); 
+        hbox.getChildren().addAll(start, next, randomField, clear);
 
         gamePane = new GridPane();
         // gamePane.setCache(true);
@@ -162,7 +162,6 @@ public class View implements Observer, EventHandler<ActionEvent> {
         GridPane p = gamePane;
         p.setGridLinesVisible(true);
         for (Cell c : cells) {
-
             Node node = p.getChildren().get(controller.getModel().getRows() * c.getRow()+1 + c.getCol());
             if (!(node instanceof Rectangle)) {
                 Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Node is not a Rectangle");
